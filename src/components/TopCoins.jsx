@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import GeckoBoard from './GeckoBoard.jsx'
+import CoinChart from './CoinChart.jsx'
 import OrdersBox from './OrdersBox.jsx'
 
 export default function TopCoins() {
@@ -13,25 +13,33 @@ export default function TopCoins() {
 
   return (
     <div>
-      <h2 className="font-semibold mb-4">Top 100 Cryptos</h2>
-      <ul className="grid grid-cols-2 md:grid-cols-4 gap-2">
+      <h2 className="font-semibold text-lg mb-6">Top 100 Cryptos</h2>
+      
+      {/* Grille des cryptos */}
+      <ul className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {coins.map(c => (
-          <li key={c.id} className="bg-gray-900 p-2 rounded cursor-pointer hover:bg-gray-800"
-              onClick={() => setSelected(c.id)}>
-            <div className="font-semibold">{c.symbol.toUpperCase()}</div>
+          <li 
+            key={c.id} 
+            onClick={() => setSelected(c)} 
+            className={`bg-[#1a1a1a] p-4 rounded-lg border transition cursor-pointer ${
+              selected?.id === c.id ? 'border-amber-400' : 'border-gray-800 hover:border-gray-600'
+            }`}
+          >
+            <div className="font-semibold text-sm">{c.symbol.toUpperCase()}</div>
             <div className="text-xs text-gray-400">{c.name}</div>
-            <div className="text-sm">${c.current_price}</div>
+            <div className="text-sm mt-1">${c.current_price.toLocaleString()}</div>
           </li>
         ))}
       </ul>
 
+      {/* Section détails */}
       {selected && (
-        <div className="grid grid-cols-3 gap-4 mt-6">
-          <div className="col-span-2">
-            <GeckoBoard geckoId={selected} />
+        <div className="grid grid-cols-3 gap-6 mt-8">
+          <div className="col-span-2 bg-[#1a1a1a] rounded-lg border border-gray-800 p-4">
+            <CoinChart geckoId={selected.id} />
           </div>
           <div>
-            <OrdersBox coin={selected} />
+            <OrdersBox coin={selected.symbol.toUpperCase()} />
           </div>
         </div>
       )}
