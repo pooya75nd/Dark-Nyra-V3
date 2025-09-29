@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import PumpBoard from './components/PumpBoard.jsx'
+import DarkNyraBoard from './components/DarkNyraBoard.jsx'
 import TopCoins from './components/TopCoins.jsx'
 import ChatBox from './components/ChatBox.jsx'
 
@@ -18,7 +18,7 @@ async function getSolBalance(pubkey) {
 }
 
 const TABS = [
-  { key: 'darknyra', title: 'Dark Nyra', render: () => <PumpBoard projectName="Dark Nyra" mint={MINT_DARK_NYRA} /> },
+  { key: 'darknyra', title: 'Dark Nyra', render: () => <DarkNyraBoard mint={MINT_DARK_NYRA} /> },
   { key: 'top', title: 'Top 100', render: () => <TopCoins /> },
   { key: 'chat', title: 'Chat', render: () => <ChatBox /> },
 ]
@@ -42,26 +42,28 @@ export default function App() {
   }, [])
 
   return (
-    <div className="min-h-screen bg-black text-white font-[Poppins]">
+    <div className="min-h-screen bg-[#0d0d0d] text-gray-100 font-[Inter]">
       {/* HEADER */}
-      <header className="p-4 flex items-center justify-between border-b border-gray-800">
+      <header className="px-8 py-4 border-b border-gray-800 flex items-center justify-between bg-[#111] sticky top-0 z-10">
         <div className="flex items-center gap-3">
-          <img src="/dark-nyra-logo.png" alt="Dark Nyra" className="h-10 w-10 rounded-full object-contain" />
+          <img src="/dark-nyra-logo.png" alt="Dark Nyra" className="h-8 w-8 rounded-full object-contain" />
           <div>
-            <div className="font-semibold text-lg">Dark Nyra</div>
-            <div className="text-xs text-gray-400">Crypto Board</div>
-            <div className="text-sm text-red-500">
-              Dev Balance: {devBalance !== null ? devBalance.toFixed(4) : '—'} SOL
-            </div>
+            <div className="text-lg font-semibold tracking-wide">Dark Nyra</div>
+            <div className="text-xs text-gray-500">Crypto Intelligence Dashboard</div>
           </div>
         </div>
-        <nav className="flex gap-2">
+        <div className="text-sm text-red-400 font-mono">
+          Dev Balance: {devBalance !== null ? devBalance.toFixed(4) : '—'} SOL
+        </div>
+        <nav className="flex gap-6">
           {TABS.map(t => (
             <button
               key={t.key}
               onClick={() => setActive(t)}
-              className={`px-4 py-2 rounded-md uppercase text-sm font-semibold ${
-                active.key === t.key ? 'bg-white text-black' : 'bg-gray-900 text-gray-400 hover:bg-gray-800'
+              className={`pb-1 transition ${
+                active.key === t.key
+                  ? 'border-b-2 border-amber-400 text-amber-400'
+                  : 'text-gray-400 hover:text-gray-200'
               }`}
             >
               {t.title}
@@ -71,7 +73,7 @@ export default function App() {
       </header>
 
       {/* CONTENU */}
-      <main className="p-4 max-w-6xl mx-auto">
+      <main className="p-8 max-w-7xl mx-auto">
         {active.render()}
       </main>
     </div>
