@@ -3,8 +3,10 @@ import { createChart } from 'lightweight-charts'
 
 export default function DarkNyraBoard({ mint, onPriceUpdate }) {
   const chartRef = useRef(null)
+  const candleSeriesRef = useRef(null)
   const [trades, setTrades] = useState([])
 
+  // Initialisation graphique
   useEffect(() => {
     const chart = createChart(chartRef.current, {
       width: 900,
@@ -21,13 +23,28 @@ export default function DarkNyraBoard({ mint, onPriceUpdate }) {
       wickUpColor: '#4ade80',
       wickDownColor: '#ef4444',
     })
+    candleSeriesRef.current = candleSeries
 
-    // Tu pourrais ici ajouter un fetch d’historique (OHLC) pour remplir le graphique
-    // candleSeries.setData([...])
+    // Fetch OHLC Pump.fun (remplace resolution par 1m, 5m, 1h selon ton besoin)
+    fetch(`https://pumpportal.fun/api/candles?mint=${mint}&resolution=1m`)
+      .then(r => r.json())
+      .then(data => {
+        if (Array.isArray(data)) {
+          const formatted = data.map(c => ({
+            time: c.time,
+            open: c.open,
+            high: c.high,
+            low: c.low,
+            close: c.close,
+          }))
+          candleSeries.setData(formatted)
+        }
+      })
 
     return () => chart.remove()
-  }, [])
+  }, [mint])
 
+  // WebSocket Pump.fun pour flux temps réel
   useEffect(() => {
     const ws = new WebSocket("wss://pumpportal.fun/api/data")
     ws.onopen = () => {
@@ -39,9 +56,21 @@ export default function DarkNyraBoard({ mint, onPriceUpdate }) {
         const t = msg.data
         setTrades(prev => [t, ...prev].slice(0, 50))
 
-        // 👉 Envoie la mise à jour du prix vers App.jsx
+        // Met à jour le header
         if (onPriceUpdate) {
           onPriceUpdate(t.price)
+        }
+
+        // Met à jour la dernière bougie
+        if (candleSeriesRef.current) {
+          const lastBar = {
+            time: Math.floor(Date.now() / 1000),
+            open: t.price,
+            high: t.price,
+            low: t.price,
+            close: t.price,
+          }
+          candleSeriesRef.current.update(lastBar)
         }
       }
     }
