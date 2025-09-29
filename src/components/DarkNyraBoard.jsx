@@ -8,7 +8,6 @@ export default function DarkNyraBoard({ mint, onPriceUpdate }) {
   const [trades, setTrades] = useState([])
   const [timeframe, setTimeframe] = useState('1m')
 
-  // Fonction pour récupérer les bougies OHLC depuis Pump.fun
   async function fetchOHLC(tf) {
     try {
       const res = await fetch(`https://pumpportal.fun/api/candles?mint=${mint}&resolution=${tf}`)
@@ -28,32 +27,29 @@ export default function DarkNyraBoard({ mint, onPriceUpdate }) {
     }
   }
 
-  // Initialiser le graphique
   useEffect(() => {
     if (!chartContainerRef.current) return
 
-    // Crée le chart dans la div dédiée
     const chart = createChart(chartContainerRef.current, {
       width: chartContainerRef.current.clientWidth,
       height: 450,
-      layout: { background: { color: '#111' }, textColor: '#ddd' },
-      grid: { vertLines: { color: '#1f1f1f' }, horzLines: { color: '#1f1f1f' } },
+      layout: { background: { color: '#0e0e23' }, textColor: '#e5e7eb' },
+      grid: { vertLines: { color: '#1f2937' }, horzLines: { color: '#1f2937' } },
       crosshair: { mode: 1 },
     })
     chartRef.current = chart
 
     const candleSeries = chart.addCandlestickSeries({
-      upColor: '#4ade80',
-      downColor: '#ef4444',
+      upColor: '#22d3ee', // BUY Kraken style
+      downColor: '#f43f5e', // SELL Kraken style
       borderVisible: false,
-      wickUpColor: '#4ade80',
-      wickDownColor: '#ef4444',
+      wickUpColor: '#22d3ee',
+      wickDownColor: '#f43f5e',
     })
     candleSeriesRef.current = candleSeries
 
     fetchOHLC(timeframe)
 
-    // Resize dynamique
     const handleResize = () => {
       chart.applyOptions({ width: chartContainerRef.current.clientWidth })
     }
@@ -65,14 +61,12 @@ export default function DarkNyraBoard({ mint, onPriceUpdate }) {
     }
   }, [mint])
 
-  // Rechargement des bougies quand timeframe change
   useEffect(() => {
     if (candleSeriesRef.current) {
       fetchOHLC(timeframe)
     }
   }, [timeframe])
 
-  // WebSocket Pump.fun pour flux temps réel
   useEffect(() => {
     const ws = new WebSocket("wss://pumpportal.fun/api/data")
     ws.onopen = () => {
@@ -103,19 +97,19 @@ export default function DarkNyraBoard({ mint, onPriceUpdate }) {
   }, [mint, onPriceUpdate])
 
   return (
-    <div>
-      {/* En-tête NYRA / SOL + sélecteur timeframe */}
-      <div className="flex items-center justify-between mb-4">
-        <h2 className="text-lg font-semibold">NYRA / SOL</h2>
+    <div className="space-y-4">
+      {/* Header NYRA / SOL + Timeframes */}
+      <div className="flex items-center justify-between">
+        <h2 className="text-lg font-semibold text-white">NYRA / SOL</h2>
         <div className="flex gap-2">
           {['1m', '5m', '1h', '1d'].map(tf => (
             <button
               key={tf}
               onClick={() => setTimeframe(tf)}
-              className={`px-3 py-1 rounded text-sm transition ${
+              className={`px-3 py-1 rounded-full text-sm transition ${
                 timeframe === tf
-                  ? 'bg-accent text-black font-semibold'
-                  : 'bg-panel text-gray-400 hover:text-gray-200'
+                  ? 'bg-violet-600 text-white font-semibold'
+                  : 'bg-[#1f2937] text-gray-400 hover:text-gray-200'
               }`}
             >
               {tf}
@@ -124,21 +118,23 @@ export default function DarkNyraBoard({ mint, onPriceUpdate }) {
         </div>
       </div>
 
-      {/* Grille Chart / Order Flow */}
+      {/* Grid chart / order flow */}
       <div className="grid grid-cols-3 gap-6">
-        {/* Chart prend 2/3 largeur et reste dans sa div */}
-        <div className="col-span-2 bg-panel rounded-lg border border-border p-4">
+        {/* Chart */}
+        <div className="col-span-2 bg-[#111827] rounded-xl border border-[#1f2937] p-4 shadow-md">
           <div ref={chartContainerRef} className="w-full h-[450px]" />
         </div>
 
-        {/* Carnet d’ordres */}
-        <div className="bg-panel rounded-lg border border-border p-4">
-          <h3 className="font-semibold mb-4 text-sm">Dernières opérations</h3>
+        {/* Order flow */}
+        <div className="bg-[#111827] rounded-xl border border-[#1f2937] p-4 shadow-md">
+          <h3 className="font-semibold mb-4 text-sm text-gray-300">Dernières opérations</h3>
           <ul className="text-xs font-mono space-y-2 max-h-[450px] overflow-y-auto">
             {trades.map((t, i) => (
               <li
                 key={i}
-                className={`flex justify-between ${t.side === 'BUY' ? 'text-buy' : 'text-sell'}`}
+                className={`flex justify-between ${
+                  t.side === 'BUY' ? 'text-[#22d3ee]' : 'text-[#f43f5e]'
+                }`}
               >
                 <span>{t.side}</span>
                 <span>{t.size.toFixed(2)}</span>
