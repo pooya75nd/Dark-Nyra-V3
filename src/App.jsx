@@ -26,6 +26,16 @@ const TABS = [
 export default function App() {
   const [active, setActive] = useState(TABS[0])
   const [devBalance, setDevBalance] = useState(null)
+  const [price, setPrice] = useState(null)
+  const [change24h, setChange24h] = useState(null)
+  const [volume24h, setVolume24h] = useState(null)
+
+  // Simulation ou API à brancher pour infos marché Dark Nyra
+  useEffect(() => {
+    setPrice(1.23)       // exemple prix en direct
+    setChange24h(+3.45)  // variation 24h
+    setVolume24h(152300) // volume en $
+  }, [])
 
   useEffect(() => {
     let stop = false
@@ -42,9 +52,11 @@ export default function App() {
   }, [])
 
   return (
-    <div className="min-h-screen bg-[#0d0d0d] text-gray-100 font-[Inter]">
+    <div className="min-h-screen bg-background text-gray-100 font-sans">
       {/* HEADER */}
-      <header className="px-8 py-4 border-b border-gray-800 flex items-center justify-between bg-[#111] sticky top-0 z-10">
+      <header className="px-8 py-4 border-b border-border bg-[#111] sticky top-0 z-10 flex items-center justify-between">
+        
+        {/* LOGO & NAME */}
         <div className="flex items-center gap-3">
           <img src="/dark-nyra-logo.png" alt="Dark Nyra" className="h-8 w-8 rounded-full object-contain" />
           <div>
@@ -52,9 +64,32 @@ export default function App() {
             <div className="text-xs text-gray-500">Crypto Intelligence Dashboard</div>
           </div>
         </div>
-        <div className="text-sm text-red-400 font-mono">
-          Dev Balance: {devBalance !== null ? devBalance.toFixed(4) : '—'} SOL
+
+        {/* MINI DASHBOARD */}
+        <div className="flex items-center gap-8 text-sm">
+          <div>
+            <div className="text-gray-400">Price</div>
+            <div className="font-semibold">{price ? `$${price}` : '—'}</div>
+          </div>
+          <div>
+            <div className="text-gray-400">24h Change</div>
+            <div className={change24h >= 0 ? 'text-buy' : 'text-sell'}>
+              {change24h ? `${change24h.toFixed(2)}%` : '—'}
+            </div>
+          </div>
+          <div>
+            <div className="text-gray-400">24h Volume</div>
+            <div>{volume24h ? `$${(volume24h/1000).toFixed(1)}K` : '—'}</div>
+          </div>
+          <div>
+            <div className="text-gray-400">Dev Balance</div>
+            <div className="text-red-400 font-mono">
+              {devBalance !== null ? `${devBalance.toFixed(3)} SOL` : '—'}
+            </div>
+          </div>
         </div>
+
+        {/* NAVIGATION TABS */}
         <nav className="flex gap-6">
           {TABS.map(t => (
             <button
@@ -62,7 +97,7 @@ export default function App() {
               onClick={() => setActive(t)}
               className={`pb-1 transition ${
                 active.key === t.key
-                  ? 'border-b-2 border-amber-400 text-amber-400'
+                  ? 'border-b-2 border-accent text-accent font-semibold'
                   : 'text-gray-400 hover:text-gray-200'
               }`}
             >
