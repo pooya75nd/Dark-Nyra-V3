@@ -4,12 +4,16 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        sans: ['Orbitron', 'ui-sans-serif', 'system-ui']
+        sans: ['Inter', 'sans-serif'],
       },
       colors: {
-        neon: '#39ff14',
-        purpledark: '#2a003f'
-      }
+        background: '#0d0d0d',
+        panel: '#1a1a1a',
+        border: '#2a2a2a',
+        buy: '#4ade80',
+        sell: '#ef4444',
+        accent: '#facc15', // doré
+      },
     },
   },
   plugins: [],
