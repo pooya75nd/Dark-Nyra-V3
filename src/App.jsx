@@ -94,21 +94,22 @@ export default function App() {
           </div>
         </div>
 
-        <nav className="flex gap-6">
-          {TABS.map(t => (
-            <button
-              key={t.key}
-              onClick={() => setActive(t)}
-              className={`pb-1 transition ${
-                active.key === t.key
-                  ? 'border-b-2 border-accent text-accent font-semibold'
-                  : 'text-gray-400 hover:text-gray-200'
-              }`}
-            >
-              {t.title}
-            </button>
-          ))}
-        </nav>
+       {/* NAVIGATION TABS */}
+<nav className="flex gap-3">
+  {TABS.map(t => (
+    <button
+      key={t.key}
+      onClick={() => setActive(t)}
+      className={`px-4 py-2 rounded-full text-sm font-medium transition 
+        ${active.key === t.key
+          ? 'bg-violet-600 text-white shadow-md'
+          : 'bg-[#1f2937] text-gray-400 hover:bg-violet-500 hover:text-white'
+        }`}
+    >
+      {t.title}
+    </button>
+  ))}
+</nav>
       </header>
 
       {/* CONTENU */}
