@@ -1,4 +1,0 @@
-cd ~/Documents/dark-nyra-pro/src
-mkdir components
-ls
-rm -rf components
