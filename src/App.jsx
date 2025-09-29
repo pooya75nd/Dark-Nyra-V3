@@ -18,25 +18,21 @@ async function getSolBalance(pubkey) {
 }
 
 const TABS = [
-  { key: 'darknyra', title: 'Dark Nyra', render: () => <DarkNyraBoard mint={MINT_DARK_NYRA} /> },
-  { key: 'top', title: 'Top 100', render: () => <TopCoins /> },
-  { key: 'chat', title: 'Chat', render: () => <ChatBox /> },
+  { key: 'darknyra', title: 'Dark Nyra' },
+  { key: 'top', title: 'Top 100' },
+  { key: 'chat', title: 'Chat' },
 ]
 
 export default function App() {
   const [active, setActive] = useState(TABS[0])
   const [devBalance, setDevBalance] = useState(null)
+
   const [price, setPrice] = useState(null)
+  const [priceStart, setPriceStart] = useState(null)
   const [change24h, setChange24h] = useState(null)
-  const [volume24h, setVolume24h] = useState(null)
+  const [volume24h, setVolume24h] = useState(0)
 
-  // Simulation ou API à brancher pour infos marché Dark Nyra
-  useEffect(() => {
-    setPrice(1.23)       // exemple prix en direct
-    setChange24h(+3.45)  // variation 24h
-    setVolume24h(152300) // volume en $
-  }, [])
-
+  // Dev wallet balance
   useEffect(() => {
     let stop = false
     async function loop() {
@@ -51,12 +47,22 @@ export default function App() {
     return () => { stop = true }
   }, [])
 
+  // Simulation variation 24h (si pas d’API OHLC)
+  useEffect(() => {
+    if (price !== null && priceStart === null) {
+      setPriceStart(price)
+    }
+    if (price !== null && priceStart !== null) {
+      const pct = ((price - priceStart) / priceStart) * 100
+      setChange24h(pct)
+      setVolume24h(v => v + Math.random() * 100) // simulation volume
+    }
+  }, [price, priceStart])
+
   return (
     <div className="min-h-screen bg-background text-gray-100 font-sans">
       {/* HEADER */}
       <header className="px-8 py-4 border-b border-border bg-[#111] sticky top-0 z-10 flex items-center justify-between">
-        
-        {/* LOGO & NAME */}
         <div className="flex items-center gap-3">
           <img src="/dark-nyra-logo.png" alt="Dark Nyra" className="h-8 w-8 rounded-full object-contain" />
           <div>
@@ -65,11 +71,10 @@ export default function App() {
           </div>
         </div>
 
-        {/* MINI DASHBOARD */}
         <div className="flex items-center gap-8 text-sm">
           <div>
             <div className="text-gray-400">Price</div>
-            <div className="font-semibold">{price ? `$${price}` : '—'}</div>
+            <div className="font-semibold">{price ? `$${price.toFixed(4)}` : '—'}</div>
           </div>
           <div>
             <div className="text-gray-400">24h Change</div>
@@ -89,7 +94,6 @@ export default function App() {
           </div>
         </div>
 
-        {/* NAVIGATION TABS */}
         <nav className="flex gap-6">
           {TABS.map(t => (
             <button
@@ -109,7 +113,11 @@ export default function App() {
 
       {/* CONTENU */}
       <main className="p-8 max-w-7xl mx-auto">
-        {active.render()}
+        {active.key === 'darknyra' && (
+          <DarkNyraBoard mint={MINT_DARK_NYRA} onPriceUpdate={setPrice} />
+        )}
+        {active.key === 'top' && <TopCoins />}
+        {active.key === 'chat' && <ChatBox />}
       </main>
     </div>
   )
